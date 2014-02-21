@@ -1,0 +1,36 @@
+import pygame
+from pygame.locals import *
+from state import State
+from ..map import Map
+from ..settings import *
+from random import randint
+
+class BattleState(State):
+
+    def __init__(self,screen,rm):
+        State.__init__(self,screen,rm)
+        self._load_map()
+        self.camera_x,camera_y = (0,0)
+
+    def _step(self):
+        pass
+
+    def _draw(self):
+        for x in range(self.cur_map.map_tile_width):
+            if x in self.cur_map.tiles:
+                for y in range(self.cur_map.map_tile_height):
+                    if y in self.cur_map.tiles[x]:
+                        self.screen.blit(
+                            self.rm.tilesets[self.cur_map.tileset_filename][randint(0,1)],
+                            (x*SETTINGS['tile_size'],
+                            y*SETTINGS['tile_size'])
+                        )
+
+    def _input(self):
+        State._input(self)
+
+        
+
+    def _load_map(self):
+        self.cur_map = Map()
+        self.rm.load_tileset(self.cur_map.tileset_filename)
