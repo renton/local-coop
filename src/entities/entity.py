@@ -20,15 +20,15 @@ class Entity():
         self.y = 10
 
         # size
-        self.width = 10
-        self.height = 10
+        self.width = 5
+        self.height = 5
 
         # hitbox
         self.hb_off_x = 0
         self.hb_off_y = 0
 
-        self.hb_width = self.width
-        self.hb_height = self.height
+        self.hb_w = self.width
+        self.hb_h = self.height
 
         # weight
         self.weight = 10
@@ -44,6 +44,7 @@ class Entity():
 
         # gravity
         self.feels_gravity = True
+        self.on_ground = False
 
     @property
     def hb_x(self):
@@ -53,13 +54,19 @@ class Entity():
     def hb_y(self):
         return self.y + self.hb_off_y
 
-    def _step(self):
-        self._move()
+    def _step(self,cur_map):
+        self._move(cur_map)
         self.ticks += 1
 
-    def _move(self):
+    def _move(self,room):
 
-        '''
+        self.dx *= 0.9
+        self._feel_gravity()
+        self.on_ground = False
+
+        if abs(self.dx) < 0.1:
+            self.dx = 0
+
         curx1 = int(self.hb_x / SETTINGS['tile_size'])
         curx2 = int((self.hb_x + self.hb_w - 1) / SETTINGS['tile_size'])
 
@@ -68,6 +75,7 @@ class Entity():
 
         no_wall = True
 
+        '''
         if (room.tiles[cury1][curx1].walkable == False and
             room.tiles[cury1][curx2].walkable == False and
             room.tiles[cury2][curx1].walkable == False and
@@ -75,60 +83,74 @@ class Entity():
             #TODO handle
             no_wall = False
         else:
-
-            next_x1 = int((self.hb_x + self.dx) / SETTINGS['t_tile_size'])
-            next_x2 = int((self.hb_x + self.dx + self.hb_w - 1) / SETTINGS['t_tile_size'])
-
-            next_y1 = int((self.hb_y + self.dy) / SETTINGS['t_tile_size'])
-            next_y2 = int((self.hb_y + self.dy + self.hb_h - 1) / SETTINGS['t_tile_size'])
-
-            # RIGHT
-            if (self.dx > 0):
-
-                if ((room.tiles[cury1][next_x2].walkable == False) or (room.tiles[cury2][next_x2].walkable == False)):
-
-                    new_hb_x = ((next_x2 * SETTINGS['t_tile_size']) - self.hb_w)
-                    self.x = new_hb_x - self.hb_off_x
-                    self.dx = 0
-                    no_wall = False
-
-            # LEFT
-            elif (self.dx < 0):
-
-                if ((room.tiles[cury1][next_x1].walkable == False) or (room.tiles[cury2][next_x1].walkable == False)):
-
-                    new_hb_x = next_x2* SETTINGS['t_tile_size']
-                    self.x = new_hb_x - self.hb_off_x
-                    self.dx = 0
-                    no_wall = False
-
-            # DOWN
-            if (self.dy > 0):
-               
-                if ((room.tiles[next_y2][curx1].walkable == False) or (room.tiles[next_y2][curx2].walkable == False)):
-
-                    new_hb_y = (next_y2 * SETTINGS['t_tile_size']) - self.hb_h
-                    self.y = new_hb_y - self.hb_off_y
-                    self.dy = 0
-                    no_wall = False
-
-            # UP
-            elif (self.dy < 0):
-
-                if ((room.tiles[next_y1][curx1].walkable == False) or (room.tiles[next_y1][curx2].walkable == False)):
-
-                    new_hb_y = next_y2 * SETTINGS['t_tile_size']
-                    self.y = new_hb_y - self.hb_off_y
-                    self.dy = 0
-                    no_wall = False
         '''
+        next_x1 = int((self.hb_x + self.dx) / SETTINGS['tile_size'])
+        next_x2 = int((self.hb_x + self.dx + self.hb_w - 1) / SETTINGS['tile_size'])
+
+        next_y1 = int((self.hb_y + self.dy) / SETTINGS['tile_size'])
+        next_y2 = int((self.hb_y + self.dy + self.hb_h - 1) / SETTINGS['tile_size'])
+
+        # RIGHT
+        if (self.dx > 0):
+            if (not room.is_passable(next_x2,cury1)) or (not room.is_passable(next_x2,cury1)):
+                new_hb_x = ((next_x2 * SETTINGS['tile_size']) - self.hb_w)
+                self.x = new_hb_x - self.hb_off_x
+                self.dx = 0
+                #no_wall = False
+
+        # LEFT
+        elif (self.dx < 0):
+
+            if (not room.is_passable(next_x1,cury1)) or (not room.is_passable(next_x1,cury2)):
+                new_hb_x = next_x2* SETTINGS['tile_size']
+                self.x = new_hb_x - self.hb_off_x
+                self.dx = 0
+                #no_wall = False
+
+        # DOWN
+        if (self.dy > 0):
+           
+            if (not room.is_passable(curx1,next_y2)) or (not room.is_passable(curx2,next_y2)):
+                new_hb_y = (next_y2 * SETTINGS['tile_size']) - self.hb_h
+                self.y = new_hb_y - self.hb_off_y
+                self.dy = 0
+                #no_wall = False
+                self.on_ground = True
+
+        # UP
+        elif (self.dy < 0):
+
+            if (not room.is_passable(curx1,next_y1)) or (not room.is_passable(curx2,next_y1)):
+                new_hb_y = next_y2 * SETTINGS['tile_size']
+                self.y = new_hb_y - self.hb_off_y
+                self.dy = 0
+                #no_wall = False
+
+
+        #print "=========================="
+        #print self.dx,self.dy
+        #print self.x,self.y
+        #print self.dx*0.9,self.dy*0.9
         self.x += self.dx
+        #self.x = int(self.x)
         self.y += self.dy
-        #self.dx *= 0.9
-        #self.dy *= 0.9
-        self.dx = 0
-        self.dy = 0
+        #self.y = int(self.y)
+
+
+
+        #print "==="
+        #print self.dx,self.dy
+        #print self.x,self.y
+        #self.dx = 0
+        #self.dy = 0
         #return no_wall
+
+    def _feel_gravity(self):
+        if self.feels_gravity:
+            self.dy += SETTINGS['default_gravity']
+            if self.dy > SETTINGS['default_terminal_velocity']:
+                self.dy = SETTINGS['default_terminal_velocity']
+    
 
     def check_collision_crude(self,entity):
 

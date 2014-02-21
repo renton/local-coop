@@ -32,5 +32,5 @@ SETTINGS['asset_bg_path'] = SETTINGS['asset_path']+"bg/"
 SETTINGS['action_player_gravity'] = 0.01
 SETTINGS['action_player_terminal_velocity'] = 2
 
-SETTINGS['default_gravity'] = 0.01
-SETTINGS['default_terminal_velocity'] = 2
+SETTINGS['default_gravity'] = 0.2
+SETTINGS['default_terminal_velocity'] = 8

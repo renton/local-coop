@@ -1,5 +1,6 @@
 from settings import *
 from tile import Tile
+from random import randint
 
 class Map():
 
@@ -24,6 +25,14 @@ class Map():
                 for count in range(10):
                     self.tiles[i][self.map_tile_height-1-count] = Tile()
 
+                for j in range(self.map_tile_height):
+                    if randint(0,100) == 0:
+                        self.tiles[i][j] = Tile()
+
                 if i == 0 or i == (self.map_tile_width-1):
                     for j in range(self.map_tile_height):
                         self.tiles[i][j] = Tile()
+
+    def is_passable(self,x,y):
+        # handle bg tiles
+        return not (x in self.tiles and y in self.tiles[x])

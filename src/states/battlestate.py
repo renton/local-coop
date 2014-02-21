@@ -22,7 +22,7 @@ class BattleState(State):
         self.fixed_camera = True
 
     def _step(self):
-        self.p1._step()
+        self.p1._step(self.cur_map)
 
         if not self.fixed_camera:
             self.center_camera_on_target(self.p1)
@@ -53,13 +53,13 @@ class BattleState(State):
 
 
         if self.keystate[K_f]:
-            self.p1.dx = -3
-        if self.keystate[K_g]:
-            self.p1.dy = 3
+            self.p1.dx = -2
         if self.keystate[K_h]:
-            self.p1.dx = 3
+            self.p1.dx = 2
         if self.keystate[K_t]:
-            self.p1.dy = -3
+            print self.p1.dy
+            if self.p1.on_ground:
+                self.p1.dy = -5
 
         # toggle fixed camera
         if self.keystate[K_z]:
@@ -119,9 +119,10 @@ class BattleState(State):
         target_x = entity.x
         target_y = entity.y
 
+        # TODO camera as int and entities as float. does this cause problems?
         self.camera_x,self.camera_y = (
-                                        (target_x-(SETTINGS['map_window_x_size']/2)),
-                                        (target_y-(SETTINGS['map_window_y_size']/2))
+                                        int(target_x-(SETTINGS['map_window_x_size']/2)),
+                                        int(target_y-(SETTINGS['map_window_y_size']/2))
                                     )
 
         if self.camera_x < 0:
