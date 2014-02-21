@@ -27,8 +27,6 @@ class Game():
                                                     SETTINGS['window_y_size']
                                                 ))
 
-
-
         # load resource manager
         self.rm = ResourceManager()
 

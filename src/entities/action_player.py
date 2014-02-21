@@ -1,6 +1,6 @@
-from entity import Entity
+from entity import EntityUnit
 
-class ActionPlayer(Entity):
+class ActionPlayer(EntityUnit):
 
     def __init__(self):
-        pass
+        EntityUnit.__init__(self)
