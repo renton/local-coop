@@ -8,12 +8,12 @@ SETTINGS['window_y_size'] = 600
 SETTINGS['map_window_x_size'] = 800
 SETTINGS['map_window_y_size'] = 600
 
-SETTINGS['fullscreen_mode'] = True
-#SETTINGS['fullscreen_mode'] = False
+#SETTINGS['fullscreen_mode'] = True
+SETTINGS['fullscreen_mode'] = False
 
 SETTINGS['tile_size'] = 8
-SETTINGS['map_tile_width'] = 110
-SETTINGS['map_tile_height'] = 90
+SETTINGS['map_tile_width'] = 200
+SETTINGS['map_tile_height'] = 200
 
 SETTINGS['scale'] = 1
 

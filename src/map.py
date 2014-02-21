@@ -20,5 +20,10 @@ class Map():
 
             if i not in self.tiles:
                 self.tiles[i] = {}
+                self.tiles[i][0] = Tile()
                 for count in range(10):
                     self.tiles[i][self.map_tile_height-1-count] = Tile()
+
+                if i == 0 or i == (self.map_tile_width-1):
+                    for j in range(self.map_tile_height):
+                        self.tiles[i][j] = Tile()

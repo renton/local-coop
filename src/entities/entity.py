@@ -124,8 +124,10 @@ class Entity():
         '''
         self.x += self.dx
         self.y += self.dy
-        self.dx *= 0.9
-        self.dy *= 0.9
+        #self.dx *= 0.9
+        #self.dy *= 0.9
+        self.dx = 0
+        self.dy = 0
         #return no_wall
 
     def check_collision_crude(self,entity):
