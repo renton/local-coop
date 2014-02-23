@@ -16,12 +16,12 @@ class Entity():
         self.active = True
 
         # position
-        self.x = 10
-        self.y = 10
+        self.x = 100
+        self.y = 100
 
-        # size
-        self.width = 5
-        self.height = 5
+        # size #24/34
+        self.width = 14
+        self.height = 15
 
         # hitbox
         self.hb_off_x = 0
@@ -44,7 +44,8 @@ class Entity():
 
         # gravity
         self.feels_gravity = True
-        self.on_ground = False
+        self.in_air = True
+        self.on_wall = False
 
     @property
     def hb_x(self):
@@ -60,9 +61,10 @@ class Entity():
 
     def _move(self,room):
 
-        self.dx *= 0.9
+        self.dx *= 0.8
         self._feel_gravity()
-        self.on_ground = False
+
+        self.on_wall = False
 
         if abs(self.dx) < 0.1:
             self.dx = 0
@@ -91,12 +93,14 @@ class Entity():
         next_y2 = int((self.hb_y + self.dy + self.hb_h - 1) / SETTINGS['tile_size'])
 
         # RIGHT
+        # TODO something wrong with this part... entities sometimes glitch through walls
         if (self.dx > 0):
             if (not room.is_passable(next_x2,cury1)) or (not room.is_passable(next_x2,cury1)):
                 new_hb_x = ((next_x2 * SETTINGS['tile_size']) - self.hb_w)
                 self.x = new_hb_x - self.hb_off_x
                 self.dx = 0
                 #no_wall = False
+                self.on_wall = True
 
         # LEFT
         elif (self.dx < 0):
@@ -106,6 +110,7 @@ class Entity():
                 self.x = new_hb_x - self.hb_off_x
                 self.dx = 0
                 #no_wall = False
+                self.on_wall = True
 
         # DOWN
         if (self.dy > 0):
@@ -115,7 +120,10 @@ class Entity():
                 self.y = new_hb_y - self.hb_off_y
                 self.dy = 0
                 #no_wall = False
-                self.on_ground = True
+
+                # only call hit ground on first fall - kinda hacky
+                if self.in_air == True:
+                    self._hit_ground()
 
         # UP
         elif (self.dy < 0):
@@ -189,8 +197,46 @@ class Entity():
             else:
                 return False
 
+    def _hit_ground(self):
+        self.in_air = False
+
 
 class EntityUnit(Entity):
     
     def __init__(self):
         Entity.__init__(self)
+        self.jump_speed = -10
+
+        # TODO rethink jump cooldown - really we dont need it, we just have to make sure that 
+        # player has released button
+        # jump cooldowns
+        self.jump_cooldown_timer = 0 
+        self.jump_cooldown = 10
+
+    def _step(self,cur_map):
+
+        # jump cooldown timer - reset if player touches ground
+        if self.in_air == False:
+            self.jump_cooldown_timer = 0
+        else:
+            # decrement while in air
+            if self.jump_cooldown_timer > 0:
+                self.jump_cooldown_timer -= 1
+
+        Entity._step(self,cur_map)
+
+    def can_jump(self):
+        return self.in_air == False and self.jump_cooldown_timer == 0
+
+    def jump(self):
+        if self.can_jump() == True:
+            self.dy = self.jump_speed
+            self._set_jump_cooldown_timer()
+
+    def _set_jump_cooldown_timer(self):
+        self.jump_cooldown_timer = self.jump_cooldown
+        self.in_air = True
+
+    def _hit_ground(self):
+        Entity._hit_ground(self)
+        self.jump_cooldown_timer = 0

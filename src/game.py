@@ -2,6 +2,7 @@ import sys,pygame
 from pygame.locals import *
 from settings import *
 from resource_manager import ResourceManager
+from input_manager import InputManager
 
 from states import BattleState
 
@@ -30,8 +31,16 @@ class Game():
         # load resource manager
         self.rm = ResourceManager()
 
+        # load input manager
+        self.im = InputManager()
+
         # state setup
         self.cur_state = BattleState(self.screen,self.rm)
+
+        # initialize input buffers
+        self.mouse_x,self.mouse_y = (0,0)
+        self.mousestate = {}
+        self.keystate = {}
             
 
     def _step(self):
@@ -39,21 +48,31 @@ class Game():
         self.cur_state._step()
 
     def _draw(self):
-        self.screen.fill((0,0,0))
+        self.screen.fill((120,120,150))
 
         # let state handle drawing
         self.cur_state._draw()
 
     def mainloop(self):
         while(1):
+
+            # reset im key events
+            self.im.reset_events()
+
             # event handling
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.display.quit()
                     sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    self.im.set_key_event(event.type,event.key)
+                if event.type == pygame.JOYBUTTONDOWN:
+                    self.im.set_joy_button_event(event.type,event.button)
+
 
             # let state handle input
-            self.cur_state._input()
+            self.im.update()
+            self.cur_state._input(self.im)
 
             # draw frame
             self._draw()

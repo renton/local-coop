@@ -12,7 +12,7 @@ class Map():
         self.bg_tiles = {}
         #self.fg_tiles = {}
 
-        self.tileset_filename = "sample.png"
+        self.tileset_filename = "sample_sprites.png"
 
         self._gen_sample()
 
@@ -21,18 +21,27 @@ class Map():
 
             if i not in self.tiles:
                 self.tiles[i] = {}
-                self.tiles[i][0] = Tile()
                 for count in range(10):
-                    self.tiles[i][self.map_tile_height-1-count] = Tile()
+                    if count == 9:
+                        self.tiles[i][self.map_tile_height-1-count] = Tile(1)
+                    else:
+                        self.tiles[i][self.map_tile_height-1-count] = Tile(0)
 
-                for j in range(self.map_tile_height):
-                    if randint(0,100) == 0:
-                        self.tiles[i][j] = Tile()
+        b_x = 50
+        b_y = 11
+        b_w = 30
+        b_h = 100
+        for i in range(b_w):
+            for j in range(b_h):
+                if i == 0 or i==1 or i == b_w-1 or i == b_w-2:
+                    self.tiles[i+b_x][(self.map_tile_height-j)-b_y] = Tile(2)
+                else:
+                    if randint(0,20) == 0:
+                        self.tiles[i+b_x][(self.map_tile_height-j)-b_y] = Tile(2)
+                    else:
+                        self.tiles[i+b_x][(self.map_tile_height-j)-b_y] = Tile(4)
 
-                if i == 0 or i == (self.map_tile_width-1):
-                    for j in range(self.map_tile_height):
-                        self.tiles[i][j] = Tile()
 
     def is_passable(self,x,y):
         # handle bg tiles
-        return not (x in self.tiles and y in self.tiles[x])
+        return not (x in self.tiles and y in self.tiles[x] and not self.tiles[x][y].passable)

@@ -9,17 +9,17 @@ from random import randint
 class BattleState(State):
 
     # TODO - problem with float x,y values and camera
-
-    def __init__(self,screen,rm):
+    def __init__(self,screen,rm,biome=None):
         State.__init__(self,screen,rm)
         self._load_map()
         self.camera_x,self.camera_y = (0,0)
         self.camera_speed = 1
-        self.bg = pygame.image.load(SETTINGS['asset_bg_path']+"sample_bg.jpg")
+        #self.bg = pygame.image.load(SETTINGS['asset_bg_path']+"sample_bg.jpg")
 
         self.p1 = ActionPlayer()
 
-        self.fixed_camera = True
+        self.fixed_camera = False
+        self.camera_scale = 1
 
     def _step(self):
         self.p1._step(self.cur_map)
@@ -31,40 +31,46 @@ class BattleState(State):
         self.cur_map = Map()
         self.rm.load_tileset(self.cur_map.tileset_filename)
 
-    # ======================================================================a
+    # ======================================================================
     #   INPUT
     # ======================================================================
-    def _input(self):
-        State._input(self)
+    def _input(self,im):
+        State._input(self,im)
 
         if self.fixed_camera:
-            if self.keystate[K_a]:
+            if im.keystate[K_a]:
                 if self.camera_x > 0:
                     self.set_camera(self.camera_x-self.camera_speed,self.camera_y)
-            if self.keystate[K_s]:
+            if im.keystate[K_s]:
                 if self.camera_y < ((self.cur_map.map_tile_height*SETTINGS['tile_size'])-SETTINGS['map_window_y_size']):
                     self.set_camera(self.camera_x,self.camera_y+self.camera_speed)
-            if self.keystate[K_d]:
+            if im.keystate[K_d]:
                 if self.camera_x < ((self.cur_map.map_tile_width*SETTINGS['tile_size'])-SETTINGS['map_window_x_size']):
                     self.set_camera(self.camera_x+self.camera_speed,self.camera_y)
-            if self.keystate[K_w]:
+            if im.keystate[K_w]:
                 if self.camera_y > 0:
                     self.set_camera(self.camera_x,self.camera_y-self.camera_speed)
 
+        # do a bit of lag when you first press left/right before moving 
+        if im.joysticks[0]['axisstates'][0] < -0.25:
+            self.p1.dx = (self.p1.speed*1)*im.joysticks[0]['axisstates'][0]
+        if im.joysticks[0]['axisstates'][0] > 0.25:
+            self.p1.dx = (self.p1.speed)*im.joysticks[0]['axisstates'][0]
+        if im.is_joy_button_event(pygame.JOYBUTTONDOWN,0):
+            self.p1.jump()
 
-        if self.keystate[K_f]:
-            self.p1.dx = -2
-        if self.keystate[K_h]:
-            self.p1.dx = 2
-        if self.keystate[K_t]:
-            print self.p1.dy
-            if self.p1.on_ground:
-                self.p1.dy = -5
+        if im.keystate[K_f]:
+            self.p1.dx = self.p1.speed*-1
+        if im.keystate[K_h]:
+            self.p1.dx = self.p1.speed
+
+        if im.is_key_event(pygame.KEYDOWN,pygame.K_t):
+            self.p1.jump()
 
         # toggle fixed camera
-        if self.keystate[K_z]:
+        if im.keystate[K_z]:
             self.fixed_camera = True
-        if self.keystate[K_x]:
+        if im.keystate[K_x]:
             self.fixed_camera = False
 
     # ======================================================================a
@@ -79,14 +85,15 @@ class BattleState(State):
         start_x_tile = self.camera_x/SETTINGS['tile_size']
         start_y_tile = self.camera_y/SETTINGS['tile_size']
 
-        self.screen.blit(self.bg,(0,0))
+        #self.screen.blit(self.bg,(0,0))
 
         for x in range((SETTINGS['map_window_x_size']/SETTINGS['tile_size'])+SETTINGS['tile_size']):
             if (x+start_x_tile) in self.cur_map.tiles:
                 for y in range((SETTINGS['map_window_y_size']/SETTINGS['tile_size'])+SETTINGS['tile_size']):
                     if (y+start_y_tile) in self.cur_map.tiles[x+start_x_tile]:
+                        cur_tile = self.cur_map.tiles[x+start_x_tile][y+start_y_tile]
                         self.screen.blit(
-                            self.rm.tilesets[self.cur_map.tileset_filename][0],
+                            self.rm.tilesets[self.cur_map.tileset_filename][cur_tile.sprite_id],
                             ((x*SETTINGS['tile_size'])-self.camera_x%SETTINGS['tile_size'],
                             (y*SETTINGS['tile_size'])-self.camera_y%SETTINGS['tile_size'])
                         )
