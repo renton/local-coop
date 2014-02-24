@@ -8,8 +8,8 @@ SETTINGS['window_y_size'] = 1024
 SETTINGS['map_window_x_size'] = 1280
 SETTINGS['map_window_y_size'] = 1024
 
-SETTINGS['fullscreen_mode'] = True
-#SETTINGS['fullscreen_mode'] = False
+#SETTINGS['fullscreen_mode'] = True
+SETTINGS['fullscreen_mode'] = False
 
 SETTINGS['map_tile_width'] = 200
 SETTINGS['map_tile_height'] = 200
@@ -31,7 +31,7 @@ SETTINGS['action_player_gravity'] = 0.01
 SETTINGS['action_player_terminal_velocity'] = 2
 
 SETTINGS['default_gravity'] = 0.9
-SETTINGS['default_terminal_velocity'] = 20
+SETTINGS['default_terminal_velocity'] = 15
 
 # =========================== DATA =======================================
 
@@ -48,8 +48,22 @@ SETTINGS['biomes'] = {
 }
 
 # PRIMARY WEAPONS
+SETTINGS['w_param_order'] = ['min_dmg','max_dmg','bullet_life','speed','accuracy','num_projs','firerate','reload_time','clip_size','crit_chance','etype']
+
 SETTINGS['primary_weapons'] = {
-    'revolver'          :{},
+    'revolver'          :{
+                            'min_dmg':5,
+                            'max_dmg':10,
+                            'bullet_life':100,
+                            'speed':10,
+                            'accuracy':5,
+                            'num_projs':1,
+                            'firerate':10,
+                            'reload_time':100,
+                            'clip_size':60000,
+                            'crit_chance':10,
+                            'etype':'f_projs'
+                        },
     'shotgun'           :{},
     'grenade_launcher'  :{},
     'smg'               :{}
@@ -57,10 +71,34 @@ SETTINGS['primary_weapons'] = {
 
 # SECONDARY WEAPONS
 SETTINGS['secondary_weapons'] = {
-    'mg'                :{},
+    'mg'                :{
+                            'min_dmg':5,
+                            'max_dmg':10,
+                            'bullet_life':100,
+                            'speed':15,
+                            'accuracy':10,
+                            'num_projs':3,
+                            'firerate':0,
+                            'reload_time':100,
+                            'clip_size':60000,
+                            'crit_chance':10,
+                            'etype':'f_projs'
+                        },
     'beam_laser'        :{},
     'rockets'           :{},
-    'sniper'            :{}
+    'sniper'            :{
+                            'min_dmg':5,
+                            'max_dmg':10,
+                            'bullet_life':100,
+                            'speed':15,
+                            'accuracy':0,
+                            'num_projs':1,
+                            'firerate':200,
+                            'reload_time':100,
+                            'clip_size':600000,
+                            'crit_chance':10,
+                            'etype':'f_projs'
+                        }
 }
 
 # SPECIAL WEAPONS

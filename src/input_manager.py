@@ -5,8 +5,16 @@ class InputManager():
     # ==XBOX GUIDE==
     # button
     # 0 - A
+    # 1 - B
+    # 2 - X
+    # 3 - Y
     # axis
-    # 0 - left analog
+    # 0 - left analog - x 
+    # 1 - left analog - y
+    # 2 - LS pressure
+    # 3 - right analog - x
+    # 4 - right analog - y
+    # 5 - RS pressure
 
     def __init__(self):
 

@@ -1,16 +1,33 @@
 from ..weapon import Weapon
+from ..settings import *
 from entity import EntityUnit
 
 class ActionPlayer(EntityUnit):
 
-    def __init__(self):
-        EntityUnit.__init__(self)
-        self.speed = 10
-        self.djump_speed = -10
-        self.wjump_speed = -10
+    def __init__(
+                    self,
+                    primary_w='revolver',
+                    secondary_w='sniper'
+                    ):
 
-        self.p_weapon = Weapon()
-        self.s_weapon = Weapon()
+        EntityUnit.__init__(self,100,100,14,15,0,0)
+
+        self.etype = "p1"
+        self.speed = 10
+        self.djump_speed = -16
+        self.wjump_speed = -16
+        self.jump_speed = -16
+
+        p_weapon_params = []
+        s_weapon_params = []
+        for param in SETTINGS['w_param_order']:
+            p_weapon_params.append(SETTINGS['primary_weapons'][primary_w][param])
+            s_weapon_params.append(SETTINGS['secondary_weapons'][secondary_w][param])
+
+        self.p_weapon = Weapon(*p_weapon_params)
+        self.s_weapon = Weapon(*s_weapon_params)
+
+        self.cur_weapon = self.p_weapon
 
         self.double_jump_ready = True
         self.air_ticks = 0
@@ -22,7 +39,37 @@ class ActionPlayer(EntityUnit):
         else:
             self.air_ticks = 0
 
+        #TODO should really be an array of weapons handled by entityunit
+        self.p_weapon._step()
+        self.s_weapon._step()
+
+        # TODO
+        if self.dx < 20:
+            self.dx *= 0.8
+
         EntityUnit._step(self,cur_map)
+
+        return (True,[])
+
+    def fire_primary(self,target_x,target_y):
+        # takes in raw input from analog, so needs multiplier and cur x,y
+        self.cur_weapon = self.p_weapon
+        projs = self.shoot(self.x+target_x*100,self.y+target_y*100)
+        return projs
+
+    def fire_secondary(self,target_x,target_y):
+        # takes in raw input from analog, so needs multiplier and cur x,y
+        self.cur_weapon = self.s_weapon
+        projs = self.shoot(self.x+target_x*100,self.y+target_y*100)
+
+        # TODO this should be based off fixed speed, not variable
+        if projs:
+            self.dx = (target_x*100)*-1
+            self.dy = (target_y*100)*-1
+
+        return projs
+
+    # JUMPING
 
     def can_wall_jump(self):
         return (self.in_air and self.on_wall and self.jump_cooldown_timer == 0)
