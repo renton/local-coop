@@ -31,16 +31,17 @@ class Projectile(Entity):
         self.feels_gravity = False
 
     def _step(self,room):
-        is_active = Entity._step(self,room)[0]
+        (is_active,new_entities) = Entity._step(self,room)
 
         if self.ticks > self.bullet_life:
             self.impact()
             is_active = False
 
-        return (is_active,[])
+        if not is_active:
+            self.is_active = False
+
+        return (is_active,new_entities)
 
     def impact(self):
         #TODO handle bouncing
-
-        print "IM{ACT"
         self.active = False

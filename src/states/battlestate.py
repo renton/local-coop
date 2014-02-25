@@ -15,7 +15,8 @@ class BattleState(State):
         State.__init__(self,screen,rm)
         self._load_map()
 
-        #self.bg = pygame.image.load(SETTINGS['asset_bg_path']+"sample_bg.jpg")
+        #self.parralax_bg_1 = pygame.image.load(SETTINGS['asset_bg_path']+"test.png") 
+        #self.parralax_bg_2 = pygame.image.load(SETTINGS['asset_bg_path']+"test2.png") 
 
         # entities
         self.entities = []
@@ -54,10 +55,10 @@ class BattleState(State):
                     entity_groups[entity.etype].append(entity)
 
         # add new entities to entity collection
-        for entitiy in created_entities:
+        for entity in created_entities:
             self.entities.append(entity)
 
-        # snap target to p1 if follow camera mode enabled
+        # snap target to p0 if follow camera mode enabled
         if not self.fixed_camera:
             self.center_camera_on_target(self.p1)
 
@@ -95,7 +96,7 @@ class BattleState(State):
             if abs(im.joysticks[0]['axisstates'][0]) > 0.25 or abs(im.joysticks[0]['axisstates'][1]) > 0.25:
                 projs = self.p1.fire_primary(im.joysticks[0]['axisstates'][0],im.joysticks[0]['axisstates'][1])
             else:
-                projs = self.p1.fire_primary(self.p1.x+100,self.p1.y)
+                projs = self.p1.fire_primary(1,0)
 
             for proj in projs:
                 self.entities.append(proj)
@@ -111,7 +112,9 @@ class BattleState(State):
                 for proj in projs:
                     self.entities.append(proj)
 
-        # do a bit of lag when you first press left/right before moving 
+            else:
+                pass
+        # TODO do a bit of lag when you first press left/right before moving 
         if im.joysticks[0]['axisstates'][0] < -0.25:
             self.p1.dx = (self.p1.speed*1)*im.joysticks[0]['axisstates'][0]
         if im.joysticks[0]['axisstates'][0] > 0.25:
@@ -145,26 +148,33 @@ class BattleState(State):
         start_x_tile = self.camera_x/SETTINGS['tile_size']
         start_y_tile = self.camera_y/SETTINGS['tile_size']
 
-        #self.screen.blit(self.bg,(0,0))
+        #self.screen.blit(self.parralax_bg_2,(0,0))
+        #self.screen.blit(self.parralax_bg_1,(0,0))
 
         for x in range((SETTINGS['map_window_x_size']/SETTINGS['tile_size'])+SETTINGS['tile_size']):
             if (x+start_x_tile) in self.cur_map.tiles:
                 for y in range((SETTINGS['map_window_y_size']/SETTINGS['tile_size'])+SETTINGS['tile_size']):
                     if (y+start_y_tile) in self.cur_map.tiles[x+start_x_tile]:
                         cur_tile = self.cur_map.tiles[x+start_x_tile][y+start_y_tile]
-                        self.screen.blit(
-                            self.rm.tilesets[self.cur_map.tileset_filename][cur_tile.sprite_id],
-                            ((x*SETTINGS['tile_size'])-self.camera_x%SETTINGS['tile_size'],
-                            (y*SETTINGS['tile_size'])-self.camera_y%SETTINGS['tile_size'])
-                        )
+                        if cur_tile.active:
+                            self.screen.blit(
+                                self.rm.tilesets[self.cur_map.tileset_filename][cur_tile.sprite_id],
+                                ((x*SETTINGS['tile_size'])-self.camera_x%SETTINGS['tile_size'],
+                                (y*SETTINGS['tile_size'])-self.camera_y%SETTINGS['tile_size'])
+                            )
+                        else:
+                            del self.cur_map.tiles[x+start_x_tile][y+start_y_tile]
+                            #TODO create large debris
+                            #TODO could also check a flag here for small debris
 
     def _draw_entities_debug(self):
 
         # TODO - only draw if in window frame
+
         for entity in self.entities:
             pygame.draw.rect(
                 self.screen,
-                (100,0,0),
+                entity.debug_color,
                 (
                     entity.x-self.camera_x,
                     entity.y-self.camera_y,

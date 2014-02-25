@@ -52,7 +52,7 @@ class Weapon():
     def can_shoot(self):
         return self.firerate_cooldown_timer == 0 and self.reload_cooldown_timer == 0 and self.cur_clip > 0
 
-    def wshoot(self,x,y,target_x,target_y):
+    def wshoot(self,x,y,target_x,target_y,shooter_dx,shooter_dy):
 
         projs = []
 
@@ -84,7 +84,7 @@ class Weapon():
                 print dx,dy
 
                 #TODO if crit shot, change dmg
-                projs.append(Projectile(x,y,dx,dy,self.proj_width,self.proj_height,self.bullet_life,randint(*self.damage),self.etype))
+                projs.append(Projectile(x,y,dx+shooter_dx,dy+shooter_dy,self.proj_width,self.proj_height,self.bullet_life,randint(*self.damage),self.etype))
 
             self.cur_clip -= 1
             if self.cur_clip <= 0:

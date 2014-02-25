@@ -47,20 +47,31 @@ class ActionPlayer(EntityUnit):
         if self.dx < 20:
             self.dx *= 0.8
 
-        EntityUnit._step(self,cur_map)
+        (no_wall,new_entities) = EntityUnit._step(self,cur_map)
 
-        return (True,[])
+        return (True,new_entities)
 
     def fire_primary(self,target_x,target_y):
         # takes in raw input from analog, so needs multiplier and cur x,y
         self.cur_weapon = self.p_weapon
-        projs = self.shoot(self.x+target_x*100,self.y+target_y*100)
+
+        # get vector of length 1
+        projs = self.shoot(
+                            self.x+(target_x/abs(target_x+target_y))*100,
+                            self.y+(target_y/abs(target_x+target_y))*100
+                        )
+
         return projs
 
     def fire_secondary(self,target_x,target_y):
         # takes in raw input from analog, so needs multiplier and cur x,y
         self.cur_weapon = self.s_weapon
-        projs = self.shoot(self.x+target_x*100,self.y+target_y*100)
+
+        # get vector of length 1
+        projs = self.shoot(
+                            self.x+(target_x/(target_x+target_y))*100,
+                            self.y+(target_y/(target_x+target_y))*100
+                        )
 
         # TODO this should be based off fixed speed, not variable
         if projs:

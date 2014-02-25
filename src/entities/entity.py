@@ -20,6 +20,9 @@ class Entity():
                     hb_off_y
                 ):
 
+        #debug
+        self.debug_color = (100,0,0)
+
         # state
         self.active = True
 
@@ -68,9 +71,9 @@ class Entity():
 
     def _step(self,cur_map):
         #TODO check out of bounds - set active False if out of map area
-        no_wall = self._move(cur_map)
+        no_wall,new_entities = self._move(cur_map)
         self.ticks += 1
-        return (True,[])
+        return (no_wall,new_entities)
 
     def _move(self,room):
 
@@ -79,6 +82,8 @@ class Entity():
 
         self._feel_gravity()
         self.on_wall = False
+
+        block_entities = []
 
         if abs(self.dx) < 0.1:
             self.dx = 0
@@ -115,6 +120,12 @@ class Entity():
                     no_wall = False
                     self.on_wall = True
 
+                    # damage tiles
+                    if(not room.is_passable(next_x2,cury1)):
+                        block_entities = room.damage_tile(next_x2,cury1,1)
+                    if(not room.is_passable(next_x2,cury2)):
+                        block_entities = room.damage_tile(next_x2,cury2,1)
+
             # LEFT
             elif (self.dx < 0):
 
@@ -124,6 +135,12 @@ class Entity():
                     self.dx = 0
                     no_wall = False
                     self.on_wall = True
+
+                    # damage tiles
+                    if(not room.is_passable(next_x1,cury1)):
+                        block_entities = room.damage_tile(next_x1,cury1,1)
+                    if(not room.is_passable(next_x1,cury2)):
+                        block_entities = room.damage_tile(next_x1,cury2,1)
 
             # DOWN
             if (self.dy > 0):
@@ -138,6 +155,12 @@ class Entity():
                     if self.in_air == True:
                         self._hit_ground()
 
+                    # damage tiles
+                    if(not room.is_passable(curx1,next_y2)):
+                        block_entities = room.damage_tile(curx1,next_y2,1)
+                    if(not room.is_passable(curx2,next_y2)):
+                        block_entities = room.damage_tile(curx2,next_y2,1)
+
             # UP
             elif (self.dy < 0):
 
@@ -147,6 +170,12 @@ class Entity():
                     self.dy = 0
                     no_wall = False
 
+                    # damage tiles
+                    if(not room.is_passable(curx1,next_y1)):
+                        block_entities = room.damage_tile(curx1,next_y1,1)
+                    if(not room.is_passable(curx2,next_y1)):
+                        block_entities = room.damage_tile(curx2,next_y1,1)
+
 
 
         self.x += self.dx
@@ -155,7 +184,8 @@ class Entity():
         #self.dx = 0
         #self.dy = 0
 
-        return no_wall
+        # TODO return effects and doodads?
+        return no_wall, block_entities
 
     def _feel_gravity(self):
         if self.feels_gravity:
@@ -231,9 +261,7 @@ class EntityUnit(Entity):
         # TODO should really hold an array of weapons
         self.cur_weapon._step()
 
-        Entity._step(self,cur_map)
-
-        return (True,[])
+        return Entity._step(self,cur_map)
 
     def can_jump(self):
         return self.in_air == False and self.jump_cooldown_timer == 0
@@ -254,6 +282,6 @@ class EntityUnit(Entity):
     # SHOOT
     def shoot(self,target_x,target_y):
         if self.cur_weapon:
-            return self.cur_weapon.wshoot(self.x,self.y,target_x,target_y)
+            return self.cur_weapon.wshoot(self.x,self.y,target_x,target_y,self.dx,self.dy)
         else:
             return []

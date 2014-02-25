@@ -11,12 +11,12 @@ SETTINGS['map_window_y_size'] = 1024
 #SETTINGS['fullscreen_mode'] = True
 SETTINGS['fullscreen_mode'] = False
 
-SETTINGS['map_tile_width'] = 200
-SETTINGS['map_tile_height'] = 200
-
 SETTINGS['scale'] = 2
 SETTINGS['raw_tile_size'] = 8
 SETTINGS['tile_size'] = SETTINGS['scale']*SETTINGS['raw_tile_size']
+
+SETTINGS['map_tile_width'] = (SETTINGS['window_x_size']*10)/SETTINGS['tile_size']
+SETTINGS['map_tile_height'] = (SETTINGS['window_y_size']*3)/SETTINGS['tile_size']
 
 # FPS
 SETTINGS['default_fps'] = 60
@@ -55,10 +55,10 @@ SETTINGS['primary_weapons'] = {
                             'min_dmg':5,
                             'max_dmg':10,
                             'bullet_life':100,
-                            'speed':10,
-                            'accuracy':5,
+                            'speed':6,
+                            'accuracy':0,
                             'num_projs':1,
-                            'firerate':10,
+                            'firerate':0,
                             'reload_time':100,
                             'clip_size':60000,
                             'crit_chance':10,
@@ -107,4 +107,11 @@ SETTINGS['special_weapons'] = {
     'needles'           :{},
     'chain_lightning'   :{},
     'reflect'           :{}
+}
+
+# TILE TEMPLATES
+SETTINGS['tile_templates'] = {
+    'rock':{},
+    'wood':{},
+    'glass':{}
 }

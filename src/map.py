@@ -1,6 +1,7 @@
 from settings import *
 from tile import Tile
 from random import randint
+from entities import Effect
 
 class Map():
 
@@ -45,3 +46,20 @@ class Map():
     def is_passable(self,x,y):
         # handle bg tiles
         return not (x in self.tiles and y in self.tiles[x] and not self.tiles[x][y].passable)
+
+    def damage_tile(self,x,y,damage):
+        self.tiles[x][y].take_damage(damage)
+
+        debris_effect = []
+        for i in range(randint(1,5)):
+            debris_effect.append(
+                Effect(
+                        x*SETTINGS['tile_size'],
+                        y*SETTINGS['tile_size'],
+                        20,
+                        20,
+                        0,
+                        0
+                        ))
+
+        return debris_effect
